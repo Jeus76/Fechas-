@@ -1,0 +1,9 @@
+Ejercicio 16, 17 Padron explicaciones
+
+16. punto 4. explique el significado de la declaracion String[] instruccion
+
+
+Al usar la declaración String[] instruccion, estamos indicando que instruccion es un array que puede contener múltiples elementos que seran cadena de texto (String)
+
+17. Explique qué es un paquete.
+Un paquete es una forma de organizar y agrupar clases, interfaces y subpaquetes relacionados en un espacio de nombres específico. Los paquetes ayudan a evitar conflictos de nombres entre clases y facilitan la gestión y mantenimiento del código al proporcionar una estructura jerárquica.
