@@ -3,6 +3,7 @@ package interfaz;
 import java.util.Scanner;
 import dominio.Contacto;
 import dominio.Libreta;
+import dominio.NoEncontrado;
 
 public class Interfaz {
     private Libreta libreta;
@@ -10,8 +11,8 @@ public class Interfaz {
 
 
     public Interfaz() {
-        this.libreta = Libreta.leer();
-        this.sc = new Scanner(System.in);
+        libreta = Libreta.leer();
+        sc = new Scanner(System.in);
     }
 
 
@@ -21,7 +22,7 @@ public class Interfaz {
     }
 
 
-    public void InterfazUsuario() {
+    public void InterfazUsuario() throws NoEncontrado.cNoEncontradoException {
         while (true) {
             System.out.println("Introduzca una instrucción: ");
             mostrarOpciones();
@@ -102,25 +103,54 @@ public class Interfaz {
 
 
     private void agregar(String nombre, String apellido, String telefono, String email) {
-        Contacto nuevoContacto = new Contacto(nombre, apellido, telefono, email);
-        libreta.add(nuevoContacto);
-        System.out.println("Contacto añadido.");
+        Contacto c = new Contacto(nombre, apellido, telefono, email);
+       try {
+           libreta.add(c);
+           System.out.println("Contacto añadido.");
+       }catch (NoEncontrado.DuplicadoException e){
+           System.out.println("Contacto ya duplicado.");
+       }
     }
 
 
     private void borrarContacto(String nombre, String apellido) {
         Contacto contacto = new Contacto(nombre, apellido, null, null);
-        libreta.borrarContacto(contacto);
-        System.out.println("Contacto borrado.");
+       try {
+           libreta.borrarContacto(contacto);
+           System.out.println("Contacto borrado.");
+
+       }catch(Exception e) {
+           System.out.println("El contacto "+ contacto.getNombre()+ contacto.getApellido()+ " no se ha encontrado.");
+       }
     }
 
 
-    private void modificar(String nombre, String atributo, String nuevoValor) {
-        if (atributo.equals("nombre") || atributo.equals("apellido") || atributo.equals("telefono") || atributo.equals("email")) {
-            libreta.modificar(nombre, atributo, nuevoValor);
-            System.out.println("Contacto modificado.");
-        } else {
-            System.out.println("Atributo no válido.");
+    private void modificar(String nombre, String atributo, String nuevoValor) throws NoEncontrado.cNoEncontradoException {
+        Contacto contacto = libreta.buscar(nombre);
+        if (contacto == null) {
+            System.out.println("Contacto no encontrado.");
+            return;
         }
+
+        switch (atributo) {
+            case "nombre":
+                contacto.setNombre(nuevoValor);
+                break;
+            case "apellido":
+                contacto.setApellido(nuevoValor);
+                break;
+            case "telefono":
+                contacto.setTelefono(nuevoValor);
+                break;
+            case "email":
+                contacto.setEmail(nuevoValor);
+                break;
+            default:
+                System.out.println("Atributo no válido.");
+                return;
+        }
+
+        libreta.modificar(contacto);
+        System.out.println("Contacto modificado.");
     }
 }

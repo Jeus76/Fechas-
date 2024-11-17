@@ -1,51 +1,55 @@
 package dominio;
 
 import java.io.*;
+import java.io.Serializable;
 import java.util.ArrayList;
+import dominio.NoEncontrado;
+
 public class Libreta implements Serializable {
     private String nombre;
     private ArrayList<Contacto> lista;
     private String apellido;
     private String telefono;
     private String email;
+    private String atributo;
+    private String nuevoValor;
+
 
     public Libreta() {
         nombre = "";
-        lista = new ArrayList<>();
+        lista = new ArrayList<Contacto>();
         apellido = "";
         telefono = "";
         email = "";
+        atributo = "";
+        nuevoValor = "";
     }
 
 
-    public Libreta add(Contacto nuevoContacto) {
-        lista.add(nuevoContacto);
-        return this;
-    }
 
-    public Contacto buscar(Contacto c) {
-        int p = lista.indexOf(c);
-        if (p == -1)
-            return null;
-        else
-            return lista.get(p);
-    }
 
-    public boolean modificar(Contacto c) {
-        Contacto encontrado = buscar(c);
-        if (encontrado != null) {
-            encontrado.setNombre(c.getNombre());
-            encontrado.setApellido(c.getApellido());
-            encontrado.setTelefono(c.getTelefono());
-            encontrado.setEmail(c.getEmail());
-            guardar();
-            return true;
+    public void add(Contacto c) throws NoEncontrado.DuplicadoException {
+        if (lista.contains(c)) {
+            throw new NoEncontrado.DuplicadoException("El contacto ya existe en la libreta.");
         }
-        return false;
+        lista.add(c);
     }
 
-    public void borrarContacto(Contacto c) {
-        lista.remove(c);
+
+    public Contacto buscar(String nombre) {
+        for (Contacto c : lista) {
+            if (c.getNombre().equalsIgnoreCase(nombre)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+
+    public void borrarContacto(Contacto c)throws NoEncontrado.cNoEncontradoException {
+        if (!lista.remove(c)) {
+            throw new NoEncontrado.cNoEncontradoException("El contacto no se ha encontrado en la libreta.");
+        }
     }
 
     public String toString() {
@@ -73,13 +77,26 @@ public class Libreta implements Serializable {
         try (ObjectOutputStream oo = new ObjectOutputStream(new FileOutputStream("contactos.dat"))) {
             oo.writeObject(this);
         } catch (IOException e) {
-            System.out.println("Error al guardar el libreta.");
+            System.out.println("Error al guardar la libreta.");
         }
     }
 
 
-    public void modificar(String nombre, String atributo, String nuevoValor) {
+    public boolean modificar(Contacto c) throws NoEncontrado.cNoEncontradoException {
+        Contacto encontrado = buscar(c.getNombre());
+        if (encontrado != null) {
+            encontrado.setNombre(c.getNombre());
+            encontrado.setApellido(c.getApellido());
+            encontrado.setTelefono(c.getTelefono());
+            encontrado.setEmail(c.getEmail());
+            guardar();
+            return true;
+        } else {
+            throw new NoEncontrado.cNoEncontradoException("El contacto no se ha encontrado en la libreta.");
+        }
+
     }
+
 
     public void exportarCSV(String nombreArchivo) throws IOException {
         try (FileWriter escritor = new FileWriter(nombreArchivo)) {
@@ -90,4 +107,5 @@ public class Libreta implements Serializable {
         }
 
     }
+
 }
